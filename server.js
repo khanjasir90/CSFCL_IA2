@@ -25,19 +25,43 @@ con.connect(function(err) {
     console.log("Connected!");
 });
 
-app.get('/homePage', (req, res) => {
+app.get('/insecureLogin', (req, res) => {
     res.render(
         'home',
         {msg:""}
     );
 })
 
-app.post('/home',(req, res) => {
-    const { username, password } = req.body;
+app.get('/secureLogin', (req, res) => {
+    res.render(
+        'secure',
+        {msg: ""}
+    );
+})
+
+app.post('/secureLogin',(req, res) => {
+    const { username, password} = req.body;
     try {
         // using prepared statement & placeholder to avoid SQL Injection
         var sql = 'INSERT INTO users (username, password) VALUES (?,?)';
         con.query(sql, [username, password] ,function (err, result) {
+        if (err) throw err;
+        res.render(
+            'home',
+            {msg:"Login Record Inserted"}
+        );
+  });        
+    } catch(error) {
+        console.log(error);
+    }
+})
+
+app.post('/insecureLogin',(req, res) => {
+    const { username, password } = req.body;
+    try {
+        // using prepared statement & placeholder to avoid SQL Injection
+        
+        con.query(`INSERT INTO users (username, password) values ('${username}','${password}')`,function (err, result) {
         if (err) throw err;
         res.render(
             'home',
