@@ -43,12 +43,16 @@ app.post('/secureLogin',(req, res) => {
     const { username, password} = req.body;
     try {
         // using prepared statement & placeholder to avoid SQL Injection
-        var sql = 'INSERT INTO users (username, password) VALUES (?,?)';
-        con.query(sql, [username, password] ,function (err, result) {
-        if (err) throw err;
+        var sql = 'SELECT * FROM users where username=?';
+        con.query(sql, [username] ,function (err, result) {
+            console.log(result);
+        if (err) res.render(
+            'home',
+           { msg: "please enter correct username and pasword" }
+        );
         res.render(
             'home',
-            {msg:"Login Record Inserted"}
+            {msg:"Login Successfull"}
         );
   });        
     } catch(error) {
@@ -58,17 +62,20 @@ app.post('/secureLogin',(req, res) => {
 
 app.post('/insecureLogin',(req, res) => {
     const { username, password } = req.body;
+    console.log(username);
     try {
-        // using prepared statement & placeholder to avoid SQL Injection
-        
-        con.query(`INSERT INTO users (username, password) values ('${username}','${password}')`,function (err, result) {
-        if (err) throw err;
-        res.render(
-            'home',
-            {msg:"Login Record Inserted"}
-        );
-  });        
-    } catch(error) {
+        const sql = "SELECT * FROM users where username='"+username+"'";
+        con.query(sql, (err, rows) => {
+            console.log(rows);
+            if(err) console.log(err);
+            else res.render(
+                'outputInsecure',   
+                {
+                    data: rows
+                }
+            )
+        })
+    } catch (error) {
         console.log(error);
     }
 })
